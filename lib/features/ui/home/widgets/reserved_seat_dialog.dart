@@ -34,45 +34,8 @@ class ReservedSeatDialog extends StatelessWidget {
             UserInfoCard(
               title: 'Reserved by:',
               user: seat.lockedBy ?? UsersData.defaultUsers.first,
-              borderColor: Colors.red,
-              backgroundColor: Colors.redAccent.withOpacity(0.1),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.redAccent.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppConstants.dialogBorderRadius),
-                border: Border.all(color: Colors.redAccent),
-              ),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.check_circle,
-                    color: Colors.redAccent,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  const Expanded(
-                    child: Text(
-                      'This seat is permanently reserved',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            UserInfoCard(
-              title: 'Current user:',
-              user: UsersData.currentUser,
-              borderColor: Colors.green,
-              backgroundColor: Colors.green.withOpacity(0.1),
+              borderColor: Colors.grey,
+              backgroundColor: Colors.grey.withOpacity(0.1),
             ),
           ],
         ),

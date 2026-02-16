@@ -2,22 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:seatlock_simulator/core/constants/app_constants.dart';
 import 'package:seatlock_simulator/features/ui/home/domain/model/seat_model.dart';
 import 'package:seatlock_simulator/features/ui/home/domain/model/seat_status.dart';
+import 'package:seatlock_simulator/core/storage/seat_database.dart';
 
 class SeatGridItem extends StatelessWidget {
   final SeatModel seat;
   final VoidCallback onTap;
 
-  const SeatGridItem({
-    required this.seat,
-    required this.onTap,
-  });
+  const SeatGridItem({super.key, required this.seat, required this.onTap});
 
-  Color _seatColor(SeatStatus status) {
-    switch (status) {
+  Color _seatColor(SeatModel seat) {
+    switch (seat.status) {
       case SeatStatus.available:
         return Colors.green;
       case SeatStatus.locked:
-        return Colors.orange;
+        if (seat.lockedBy?.id == UsersData.currentUser.id) {
+          return Colors.orange;
+        } else {
+          return Colors.orange;
+        }
       case SeatStatus.reserved:
         return Colors.red;
     }
@@ -30,7 +32,7 @@ class SeatGridItem extends StatelessWidget {
       child: AnimatedContainer(
         duration: AppConstants.dialogAnimationDuration,
         decoration: BoxDecoration(
-          color: _seatColor(seat.status),
+          color: _seatColor(seat),
           borderRadius: BorderRadius.circular(AppConstants.dialogBorderRadius),
         ),
         child: Center(

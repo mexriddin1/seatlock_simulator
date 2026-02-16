@@ -12,6 +12,7 @@ import 'bloc/home_event.dart';
 import 'bloc/home_state.dart';
 import 'domain/model/seat_model.dart';
 import 'domain/model/seat_status.dart';
+import 'package:seatlock_simulator/core/storage/seat_database.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,6 +35,14 @@ class _HomePageState extends State<HomePage> {
       context.read<HomePageBloc>().add(LockSeatEvent(seat));
     } else if (seat.status == SeatStatus.reserved) {
       _showReservedSeatDialog(seat);
+    } else if (seat.status == SeatStatus.locked) {
+      final owner = seat.lockedBy?.name ?? 'Someone';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$owner has locked this seat'),
+          duration: AppConstants.snackBarDuration,
+        ),
+      );
     }
   }
 
@@ -67,7 +76,6 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: const Color(0xFF121212),
             body: Column(
               children: [
-                // Header with title and clear button
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(

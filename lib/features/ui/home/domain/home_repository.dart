@@ -5,19 +5,22 @@ import 'package:seatlock_simulator/core/extension/request_state.dart';
 import 'package:seatlock_simulator/core/storage/seat_database.dart';
 import 'model/seat_model.dart';
 import 'model/seat_status.dart';
+import 'model/user_model.dart';
 
 abstract class HomeRepository {
-  /// Loads seats from the database (or memory if already loaded).
   Future<RequestState<Stream<List<SeatModel>>>> loadSeats();
 
-  /// Attempts to lock a seat for [user] (falls back to currentUser if null).
   Future<RequestState<SeatModel>> lockSeat(SeatModel model, {UserModel? user});
 
-  /// Confirm reservation previously locked by [user].
-  Future<RequestState<SeatModel>> confirmReservation(SeatModel model, {UserModel? user});
+  Future<RequestState<SeatModel>> confirmReservation(
+    SeatModel model, {
+    UserModel? user,
+  });
 
-  /// Cancel lock held by [user].
-  Future<RequestState<SeatModel>> cancelLock(SeatModel model, {UserModel? user});
+  Future<RequestState<SeatModel>> cancelLock(
+    SeatModel model, {
+    UserModel? user,
+  });
 
   Future<RequestState<void>> clearAllSeats();
 }
@@ -38,7 +41,6 @@ class HomeRepositoryImpl extends HomeRepository {
   @override
   Future<RequestState<Stream<List<SeatModel>>>> loadSeats() async {
     try {
-      // if already initialized just return existing stream
       if (_initialized) {
         return RequestStateSuccessWithData(_seatController.stream);
       }
@@ -72,7 +74,10 @@ class HomeRepositoryImpl extends HomeRepository {
   }
 
   @override
-  Future<RequestState<SeatModel>> lockSeat(SeatModel model, {UserModel? user}) async {
+  Future<RequestState<SeatModel>> lockSeat(
+    SeatModel model, {
+    UserModel? user,
+  }) async {
     try {
       final actor = user ?? UsersData.currentUser;
       int index = model.id;
@@ -109,7 +114,10 @@ class HomeRepositoryImpl extends HomeRepository {
   }
 
   @override
-  Future<RequestState<SeatModel>> confirmReservation(SeatModel model, {UserModel? user}) async {
+  Future<RequestState<SeatModel>> confirmReservation(
+    SeatModel model, {
+    UserModel? user,
+  }) async {
     try {
       final actor = user ?? UsersData.currentUser;
       int index = model.id;
@@ -122,9 +130,10 @@ class HomeRepositoryImpl extends HomeRepository {
         return RequestStateFailed('Seat is not for this reservation');
       }
 
-      // ensure the actor matches the locker
       if (model.lockedBy != null && model.lockedBy!.id != actor.id) {
-        return RequestStateFailed('Cannot confirm reservation for a seat locked by another user');
+        return RequestStateFailed(
+          'Cannot confirm reservation for a seat locked by another user',
+        );
       }
 
       if (model.lockExpirationTime != null &&
@@ -137,7 +146,6 @@ class HomeRepositoryImpl extends HomeRepository {
         lockExpirationTime: null,
       );
 
-
       await _database.insertSeat(reservedSeat);
 
       _seats[index] = reservedSeat;
@@ -145,12 +153,17 @@ class HomeRepositoryImpl extends HomeRepository {
 
       return RequestStateSuccessWithData(reservedSeat);
     } catch (e) {
-      return RequestStateFailed('Error confirming reservation: ${e.toString()}');
+      return RequestStateFailed(
+        'Error confirming reservation: ${e.toString()}',
+      );
     }
   }
 
   @override
-  Future<RequestState<SeatModel>> cancelLock(SeatModel model, {UserModel? user}) async {
+  Future<RequestState<SeatModel>> cancelLock(
+    SeatModel model, {
+    UserModel? user,
+  }) async {
     try {
       final actor = user ?? UsersData.currentUser;
       int index = model.id;
@@ -161,7 +174,6 @@ class HomeRepositoryImpl extends HomeRepository {
 
       final seat = _seats[index];
 
-      // only allow cancel if actor holds the lock or if not locked
       if (seat.lockedBy != null && seat.lockedBy!.id != actor.id) {
         return RequestStateFailed('Cannot cancel lock held by another user');
       }
