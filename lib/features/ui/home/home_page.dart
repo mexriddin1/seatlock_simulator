@@ -50,7 +50,12 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (context) => ReservedSeatDialog(seat: seat),
+      builder: (dialogContext) => ReservedSeatDialog(
+        seat: seat,
+        onCancel: (e) {
+          context.read<HomePageBloc>().add(CancelLockEvent(e));
+        },
+      ),
     );
   }
 
@@ -91,7 +96,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                       ElevatedButton.icon(
                         onPressed: () {
-                          context.read<HomePageBloc>().add(const ClearAllDataEvent());
+                          context.read<HomePageBloc>().add(
+                            const ClearAllDataEvent(),
+                          );
                         },
                         icon: const Icon(Icons.refresh),
                         label: const Text('Restart'),

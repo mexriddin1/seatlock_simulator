@@ -122,7 +122,7 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
     LockSeatEvent event,
     Emitter<HomePageState> emit,
   ) async {
-    final response = await repository.lockSeat(event.model);
+    final response = await repository.lockSeat(event.model, user: UsersData.currentUser);
 
     if (response.isSuccess) {
       final data = response.dataOrNull;
@@ -153,7 +153,7 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
     ConfirmReservationEvent event,
     Emitter<HomePageState> emit,
   ) async {
-    final response = await repository.confirmReservation(event.seat);
+    final response = await repository.confirmReservation(event.seat, user: UsersData.currentUser);
 
     if (response.isSuccess && state.expirationSeatStatus.isSuccess) {
       final seats = state.expirationSeatStatus.dataOrNull ?? [];
@@ -179,7 +179,7 @@ class HomePageBloc extends Bloc<HomePageEvent, HomePageState> {
     CancelLockEvent event,
     Emitter<HomePageState> emit,
   ) async {
-    final response = await repository.cancelLock(event.seat);
+    final response = await repository.cancelLock(event.seat, user: event.seat.lockedBy);
 
     if (response.isSuccess && state.expirationSeatStatus.isSuccess) {
       final seats = state.expirationSeatStatus.dataOrNull ?? [];

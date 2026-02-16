@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:seatlock_simulator/core/constants/app_constants.dart';
 import 'package:seatlock_simulator/core/storage/seat_database.dart';
-import 'package:seatlock_simulator/features/ui/home/bloc/home_bloc.dart';
-import 'package:seatlock_simulator/features/ui/home/bloc/home_event.dart';
 import 'package:seatlock_simulator/features/ui/home/domain/model/seat_model.dart';
 import 'package:seatlock_simulator/features/ui/home/widgets/user_info_card.dart';
 
 class ReservedSeatDialog extends StatelessWidget {
   final SeatModel seat;
+  final Function(SeatModel)? onCancel;
 
-  const ReservedSeatDialog({super.key, required this.seat});
+  const ReservedSeatDialog({super.key, required this.seat, this.onCancel});
 
   bool get _isCurrentUserSeat =>
       seat.lockedBy?.id == UsersData.currentUser.id;
@@ -55,9 +53,14 @@ class ReservedSeatDialog extends StatelessWidget {
                 horizontal: 16,
               ),
             ),
-            onPressed: () {
-              context.read<HomePageBloc>().add(CancelLockEvent(seat));
-              Navigator.pop(context);
+            onPressed: () async {
+              try {
+                onCancel?.call(seat);
+              } catch (error) {
+                debugPrint('Error cancelling reservation for seat ${error.toString()}');
+              } finally {
+                Navigator.pop(context);
+              }
             },
             child: const Text(
               'Cancel Reservation',
